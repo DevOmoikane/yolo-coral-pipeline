@@ -166,7 +166,8 @@ FROM scratch AS deps-rootfs
 COPY --from=libusb-build /usr/local/lib /usr/local/lib
 COPY --from=s6-overlay /rootfs/ /
 COPY --from=models /rootfs/ /
-COPY --from=wheels /rootfs/ /
+# COPY --from=wheels /rootfs/ /
+
 FROM slim-base AS deps
 ARG TARGETARCH
 ARG BASE_IMAGE
@@ -221,7 +222,7 @@ RUN apt-get update \
     && apt-get install make -y \
     && rm -rf /var/lib/apt/lists/*
 
-RUN --mount=type=bind,source=setup/requirements-dev.txt,target=/workspace/security/requirements-dev.txt \
+RUN --mount=type=bind,source=setup/requirements-dev.txt,target=/requirements-dev.txt \
     pip3 install -r requirements-dev.txt
 
 CMD ["sleep", "infinity"]
