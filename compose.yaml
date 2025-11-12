@@ -1,0 +1,28 @@
+services:
+  yolo:
+    container_name: yolo
+    restart: unless-stopped
+    stop_grace_period: 30s
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: "${UID:-1000}:${GID:-1000}"
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /dev/bus/usb:/dev/bus/usb
+      - ./inference:/data/inference
+      - ./quantization:/data/quantization
+      - ./training:/data/training
+      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+        target: /tmp/cache
+        tmpfs:
+          size: 1000000000
