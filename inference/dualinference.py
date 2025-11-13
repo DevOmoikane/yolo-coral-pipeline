@@ -9,6 +9,8 @@ from flask import Flask, Response
 from scipy.optimize import linear_sum_assignment
 from pycoral.utils.edgetpu import make_interpreter
 from pycoral.adapters.common import input_size
+import click
+
 
 # --- Configuration Toggle ---
 ENABLE_OPTICAL_FLOW = True  # Set to True for per-frame MOSSE+KLT updates; False to update only on inference frames
@@ -430,7 +432,9 @@ def index():
     </html>
     '''
 
-if __name__ == '__main__':
+@click.command(context_settings={"ignore_unknown_options": True})
+@click.argument()
+def main():
     # Start camera capture thread
     threading.Thread(target=capture_frames, daemon=True).start()
     logger.info("Started capture thread")
@@ -443,3 +447,7 @@ if __name__ == '__main__':
     logger.info("Started two inference threads")
     logger.info("Starting web server on port 5000")
     app.run(host='0.0.0.0', port=5000, threaded=True)
+
+
+if __name__ == '__main__':
+    main()
