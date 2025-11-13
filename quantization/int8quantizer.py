@@ -11,15 +11,15 @@ import click
 @click.argument('tflite_int8_model', nargs=1, type=click.Path())
 @click.argument('saved_model_dir', nargs=1, type=click.Path())
 @click.option('--img-size', 'img_size', type=int, default=512)
-def main(*args, **options):
+def main(**options):
     # Ensure the output directory exists
-    os.makedirs(os.path.dirname(args['tflite_int8_model']), exist_ok=True)
+    os.makedirs(os.path.dirname(options['tflite_int8_model']), exist_ok=True)
 
     # Representative dataset generator (limits to 100 images)
     def representative_dataset():
         image_files = sorted([
-            os.path.join(args['representative_images_dir'], f)
-            for f in os.listdir(args['representative_images_dir'])
+            os.path.join(options['representative_images_dir'], f)
+            for f in os.listdir(options['representative_images_dir'])
             if f.endswith(".jpg")
         ])[:100]
         for img_path in image_files:
@@ -31,8 +31,8 @@ def main(*args, **options):
             yield [img]
 
     # Convert the SavedModel to a TFLite INT8 model with float32 I/O
-    print(f"Loading SavedModel from: {args['saved_model_dir']}")
-    converter = tf.lite.TFLiteConverter.from_saved_model(args['saved_model_dir'])
+    print(f"Loading SavedModel from: {options['saved_model_dir']}")
+    converter = tf.lite.TFLiteConverter.from_saved_model(options['saved_model_dir'])
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     converter.representative_dataset = representative_dataset
     converter.inference_input_type = tf.float32
@@ -42,10 +42,10 @@ def main(*args, **options):
     tflite_quant_model = converter.convert()
 
     # Save the quantized TFLite model
-    with open(args['tflite_int8_model'], "wb") as f:
+    with open(options['tflite_int8_model'], "wb") as f:
         f.write(tflite_quant_model)
 
-    print(f"Quantized model saved to: {args['tflite_int8_model']}")
+    print(f"Quantized model saved to: {options['tflite_int8_model']}")
 
 
 if __name__ == '__main__':

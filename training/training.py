@@ -29,21 +29,21 @@ import yaml
 @click.option('--fliplr', type=float, default=0.5)
 @click.option('--close-mosaic', type=int, default=30)
 @click.option('--multi-scale/--single-scale', is_flag=True, default=True)
-def main(*args, **options):
+def main(**options):
   # === Generate YOLO data config ===
 
   data_content = {
      'path':'.',
-     'train':args['train_images_path'],
-     'val':args['val_images_path'],
+     'train':options['train_images_path'],
+     'val':options['val_images_path'],
      'names':[]
   }
 
   with open(options['coco_file']) as coco_file:
      pass
 
-  with open(args['data_yaml_path'], "w") as f:
-      yaml.dump(data_content, args['data_yaml_path'], default_flow_style=False)
+  with open(options['data_yaml_path'], "w") as f:
+      yaml.dump(data_content, options['data_yaml_path'], default_flow_style=False)
 
   project = options['project']
   name = options['name']
@@ -65,7 +65,7 @@ def main(*args, **options):
 
   # === Train the model ===
   model.train(
-      data=args['data_yaml_path'],
+      data=options['data_yaml_path'],
       epochs=options['epochs'],
       imgsz=options['imgsz'],
       batch=options['batch'],
